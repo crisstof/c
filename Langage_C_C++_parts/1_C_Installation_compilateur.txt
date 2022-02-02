@@ -1,0 +1,38 @@
+Installation pour compiler un programme C/C++ sur windows
+Installer VScode avec extension C/C++ buils intellisens
+Installer https://www.msys2.org/   msys2-x86_64 .. .exe
+ 	https://github.com/msys2/msys2-installer/releases/download/2022-01-18/msys2-x86_64-20220118.exe
+Installer une fenêtre s'ouvre exécuter les commandes à la suite
+$pacman -Syu
+	Synchronisation
+$pacman -Su
+	Téléchargement
+(default-all):  //Tapez Entrée
+	Installation de tout les outils
+
+Variable d'environnement: C:\msys64\mingw64\bin
+
+gcc --version
+g++ --version
+
+mkdir projects
+cd projects
+mkdir helloworld
+cd helloworld
+code .
+
+========main.c================
+#include <stdio.h>
+
+
+int main(void)
+{
+    printf("Hello world");
+    return 0;
+}
+==============================
+gcc main.c -o fic1
+.\fic1
+Hello wordl
+
+avec VsCode: https://code.visualstudio.com/docs/cpp/config-mingw
