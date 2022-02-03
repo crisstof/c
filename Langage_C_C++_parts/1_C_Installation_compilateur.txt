@@ -36,3 +36,58 @@ gcc main.c -o fic1
 Hello wordl
 
 avec VsCode: https://code.visualstudio.com/docs/cpp/config-mingw
+=================================================================
+Ouvrer apres la mise en place de l'extension C/C++ un dossier hello
+créer le fichier hello.cpp
+--------------------------------------------------------------------------------------------------------
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+    vector<string> msg {"Hello", "C++", "World", "from", "VS Code", "and the C++ extension!"};
+
+    for (const string& word : msg)
+    {
+        cout << word << " ";
+    }
+    cout << endl;
+}
+---------------------------------------------------------------------------------------------------------
+terminal>configurer la tâche de build par défaut>créer le fichier task.json>coller ou  vous l'avez directement g++.exe build active file
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: g++.exe build active file",
+      "command": "C:/msys64/mingw64/bin/g++.exe",
+      "args": ["-g", "${file}", "-o", "${fileDirname}\\${fileBasenameNoExtension}.exe"],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "compiler: C:/msys64/mingw64/bin/g++.exe"
+    }
+  ],
+  "version": "2.0.0"
+}
+
+Ensuite il suffit de CTRL+Maj+B et cela crée le fichier exec
+ensuite on ouvre un terminal avec le chemin de ce fichier et exécuter le fichier: .\fichier.exe
+Cela évite de faire: gcc nom_fichier.c -o nom_de_lexecutable.exe
+==================================================================================================
+faire une tache pour lancer le deboguer.
+créer un launch.json 
+Exécuter>Ajouter une configuration choix: (GDB/LLDB) puis choix g++.exe build and debug active file.
+démarrer le mode debug F5.
+lire pour plus de détaille: https://code.visualstudio.com/docs/cpp/config-mingw
+
+
+
