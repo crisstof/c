@@ -1,0 +1,270 @@
+
+*********************************************************************************************************************************
+POO			avec Classes        (classe, objet, encapsulation)            (C++)					*		
+*********************************************************************************************************************************
+La base de la programmation orientée objet (POO)
+Les deux modélisations principales en informatique sont la perspective algorithmique et la perspectives orientée objet.
+	Le principe de l'approche algorithmique consiste à décomposer des gros algorithmes en procédures plus petites et 
+les logiciels centrés sur les algorithmes étent difficiles à mettre à jour, le développement logiciel s'appuie de plus en plus 
+sur une  perspectives orientée objet dont les briques de base sont les objets.
+	Un objet est un concept, une abstraction ou une chose ayant des limites très claires et un sens précis dans le 
+contexte du problème étudié.
+	Le terme identité signifie que les objets peuvent être distingués grâce à leur existence inhérente et non grâce
+ à la description des propriétés qu’ils peuvent avoir comme Deux pommes ayant les mêmes couleur, forme et texture 
+demeurent des pommes individuelles, une personne peut manger l'une, puis l'autre.
+	Une classe (classe d'objets) d'écrit un groupe d'objets ayant des propriétés similairs (données membres) et un 
+comportement commun (fonctions membres ou méthodes) comme Personne, Fenêtres sont des classe d'objets.
+Le terme classe est souvent utilisé à la place de classe objets. On parle de l'instance d'une classe pour désigner
+un objet d'une classe.
+	Les objets d'une classe partagent plus un objectif sémantique commun , plus que de la spécification et comportement:
+une étable et un cheval (prix, âge) peuvent appartenir à des classes différentes. Mais si l'établie et le cheval ne sont
+considérés que comme des actifs dinanciers, ils pourront appartenir à la même classe. Donc l'interprétation sémantique dépend
+du but de chaque application et est fonctin du jugement de l'objet.
+Le fait de regrouper les objets en classe permet d'abstraire un problème. L'abstraction donne à la modélisation sa puissance 
+et sa capacité à généraliser. Les définitions communes (tels que les noms des données membres) sont stockés une fois par classe 
+plutôt qu'une fois par instance.
+
+Déclarer une classe correspond plus ou moins à définir un nouveau type.
+l'encapsulation permet de faire abstraction du fonctionnement interne  elle permet de déclarer les données membres 
+d'une classe avec 
+                public (accès de n'importe qu'elle fonction) (utilisable de tous)  
+		private (accès juste à la classe de la classe et ce autorisé avec friend) (uniquement par les membres de la classe)
+                protected (même que private mais accessible par le classes filles) (uniquement de la classe et les classes dérivées)
+=================================================================================================================================
+classe Personne{
+     private:
+		int age;
+     public:
+		string nom;
+		string prenom;
+   //constructeur initialise les 
+     Personne(string nom, string prenom){
+        this.nom = nom;   //this 
+        this.prenom = prenom
+    }
+
+    void monAge(){
+	cout << "mon age est: " << age <<endl;
+    }
+
+};
+
+
+main(){
+
+Personne p1; //mais on peut aussi tableaux d'objet Personne pers[5] ou pointeur sur un objet Personne *pp; pp=new(Personne) ...
+....
+
+}
+
+====================================attribut et méthode STATIC=======================================================================
+//Attention une méthode static ne peut 	accéder qu’aux attributs static de la classe.
+Il faut distinguer membre d’instance et membre de classe. Un membre est un attribut ou une méthode.
+
+
+
+
+====================================HERITAGE  fille : mère===========================================================================
+Héritage 
+Relation entre une classe générale (mère ou super-classe) et une classe dérivée pour être plus spécifique (fille, sous-classe)
+classe mère et si on hérite on crée des classes filles nous pouvons aussi faire de l'héritage multiple.
+
+Polymorphisme
+Lorsqu'un enfant a une méthode dont la signature (type retour, nom de la méthode, liste des arguements) est la même que celle
+d'une méthode du parent, la méthode de l'enfant prévaut sur celle du parent. Ce phénomène est connu sous le nom de Polymorphisme
+
+Abstraite
+Une classe abstraite est une classe qui ne peut être instanciée, le développeur signe un pacte donc nous oblige à la redéfinire.
+
+
+
+
+
+====================================POLYMORPHISME  : mère===========================================================================
+la méthode d'une classe dérivée a le même nom que celle de la classe mère, elle masque la méthode de la classe mère.
+on peut appeler la méthode de la mère en indiquant avant son nom deux foix deux point
+dans la classe fille une méthode du même nom de la mère et dedans elle même on veut appeler la même méthode mais celle de la mère:
+   class PointColore : public Emplacement{
+ ....
+        void situe(){
+              Emplacement::situe(); //méthode de la mère.
+               .....
+        }
+}; 
+
+
+
+
+
+====================================VIRTUAL========================================================================================
+Lorsqu'une méthode est déclarée virtuelle, toutes ses redéfinitions le sont aussi.
+
+class A{ ....};
+class B : public A{ ....};  //héritage public
+main(){
+	A a;
+	B b;
+	a=b
+}
+
+Maintenant nous créons 3 classes Chien Chat Cochon héritent de Mammifère.
+On crée un tableau de 4 pointeurs sur des mammifères et suivant le choix de l'utilisateur, on donne au case du tableau la valeur 
+d'un pointeur sur Mammifère, sur Chien, Chat, Cochon. Ensuite on demande à chaque animal de crier
+--------------------------------------------------------------------------------------
+#include <iostream>
+using namespace std;
+
+class Mammifere{
+   public:
+      Mammifere(){ printf("creation mammifere");}
+     void crier(){ printf("oups");} //void virtual crier(){ printf("oups");} 
+};
+
+class Chien : public Mammifere{
+   public:
+      Chien (){ printf("creation Chien ");}
+      void crier(){ printf("ouaf");}
+};
+
+class Chat : public Mammifere{
+   public:
+      Chat(){ printf("creation Chat ");}
+      void crier(){ printf("miaou");}
+};
+
+class Cochon : public Mammifere{
+   public:
+      Cochon (){ printf("creation Cochon ");}
+      void crier(){ printf("gruic");}
+};
+
+main(){
+  Mammifere *tab[4];
+  int r,i;
+  for(i=0;i<4;i++){
+     printf("choix 1:chien, 2:chat, 3:cochon");
+     cin >> r;
+     switch(t){
+        case 1 :
+	    tab[i] = new Chien;
+	    break;
+       case 2 :
+	    tab[i] = new Chat;
+	    break;
+       case 3 :
+	    tab[i] = new Cochon;
+	    break;
+       default :
+	    tab[i] = new Mammifere;
+      }
+ printf("votre ménagère");
+ for(i=0;i<4;i++){
+     tab[i]->crier();
+  }
+}
+crier() oups partout// les éléments du tableau ont été déclarés comme étant mammiferes logique. mais ajoutons virtual crier() à mammifere
+crier() on a bien ouaf, gruic,oups, miaou pour (1, 3, 4, 2)
+
+Lors de la création d'un objet dérivé, le constructeur de la classe de base et le constructeur de la classe dérivée sont appelés 
+successivement.
+Lorsque certaines méthodes sont déclarées virtuelles, le compilateur crée pour chaque classe contenant au moins une méthode virtuelle 
+un tableau dans lequel est indiqué où se trouve le code de chaque méthodes virtuelles de la classe. Ensuite, chaque objet d'une 
+classe contenant une méthode virtuelle est constitué en plus de ses données membres d'un pointeur vers la table correspondant à 
+sa classe
+Lorsqu'une méthode est déclarée viruelle, toutes ses redénitions le sont aussi :
+crier de la classe Chien est virtuelle car elle est la redénition de crier de la classe Mammifère.
+Un pointeur sur un objet pointe entre autre sur le pointeur du tableau des méthodes virtuelles de la classe réelle de l'objet. 
+Ainsi il utilise la dénition de la méthode de la classe réelle de l'objet.
+
+Les limites ceci ne fonctionne qu'avec des pointeurs 
+Mammifere tab[4];
+int i;
+Chien medor;
+tab[0]=medor;
+Chat felix;
+tab[1]=felix;
+tab[i].crier(); //oups ne fonctionne pas puisque tab n'a que des objets de classe Mammifere.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+====================================FRIEND========================================================================================
+Une fonction amie d'une classe est une fonction qui sans être une méthode de cette classe, al edroit d'accéder à tous les données
+membres et méthodes, privées comme publique de la classe.
+
+ friend nomMethode(A a, A aa){ a.d ...}
+l'utilisation de friend entraine un conflit avec using namespace std; ce qui oblige à faire std.cout ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,227 @@
+*********************************************************************************************************************************
+			VARIABLES                       (Langages C/C++)							*		
+*********************************************************************************************************************************
+
+
+#Variables
+==========
+ _______________________________________________________________________________________________________________________
+|Type					| mem octets	|  valeur min			| valeur max			|
+|========================================================================================================================
+|char			(char)		|		| 				|				|
+|------------------------------------------------------------------------------------------------------------------------
+|signed char		(char)		| 1 (8 bits)	| -128				| 127				|
+|------------------------------------------------------------------------------------------------------------------------
+|unsigned char		(uchar)		| 1 		| 0				| 255				|
+|------------------------------------------------------------------------------------------------------------------------
+|int			(int)		| 4 		| -2.147.483.648		| 2.147.483.647			|	
+|------------------------------------------------------------------------------------------------------------------------
+|unsigned int		(uint)		| 2/4 		| 0/0				| 65535/4.294.967.295		|
+|------------------------------------------------------------------------------------------------------------------------
+|short			(short)		| 2 		| -32.768			| 32.767			|
+|------------------------------------------------------------------------------------------------------------------------
+|unsigned short		(ushort)	| 2 		| 0				| 65.535			|	
+|------------------------------------------------------------------------------------------------------------------------
+|long			(long)		| 4 		| -2.147.483.648		| 2.147.483.647			|	
+|------------------------------------------------------------------------------------------------------------------------
+|unsigned long		(ulong)		| 4 		| 0				| 4.294.967.295			|		
+|------------------------------------------------------------------------------------------------------------------------
+|long long		(long long)	| 8		| -9.223.372.036.854.776.000	| 9.223.372.036.854.775.807	|					
+|------------------------------------------------------------------------------------------------------------------------
+|unsigned long long			| 8		| 0				| 18.446.744.073.709.552.000	|					
+|------------------------------------------------------------------------------------------------------------------------
+|float			(float)		| 4		| -3.4e38			| -3.4e38			|	
+|------------------------------------------------------------------------------------------------------------------------
+|double			(double)	| 8		| 1.7e308			| 1.7e308			|
+|------------------------------------------------------------------------------------------------------------------------
+|long double		(ldouble)	| 10		| -1.1e4932			| -1.1e4932			|		
+|------------------------------------------------------------------------------------------------------------------------
+|boolean(true/false)	(bool)		| 1 octet c'est la valeur minimale à stocker 00000001bits (le reste sont remplis|		
+|------------------------------------------------------------------------------------------------------------------------
+
+
+les noms de variables peuvent être aussi long toutefois le compilateur ne tiendra compte que des 32 premiers caractères.
+elle doivents répondre à certains critères:
+	- elle commence par une lettre ou un _  (pas par un chiffre)
+	- elle comporte, lettres, chiffres, _ (les espaces ne sont pas autorisés)
+	- elle ne peut pas être des noms réservés (asm, auto, break, case, catch, char,clss, continue, default, delete do, double
+	   					  (else, enum, extern, float, for, friend, goto, long, new, operator, private, protected
+						  (public, register, return, short, signed, sizeof, static, struct, switch, template, this
+						  (throw, try, typedef, union, unsigned, virtual, void, volatiel, while ...)
+
+
+
+
+
+
+
+
+
+*********************************************************************************************************************************
+			CONDITIONS                      (Langages C/C++)							*					*
+*********************************************************************************************************************************
+
+if(condition){ ...}else{ ...}
+
+switch(n){
+	case val1 : instructions;
+	  break;
+	case val2 : instructions;
+	  break;
+	default: instructions;
+}
+
+while(condition){ liste }     #il faut connaitre la sorti de boucle (i++ ...)
+do{ liste } while(condition); #exécute au moins une fois les instructions.
+for(comp=debut; comp<fin;comp++){  liste } #on connait à l'avance le nombre d'exécution.
+
+
+
+*********************************************************************************************************************************
+			TABLEAUX & STRUCTURES                      (Langages C/C++)						*					*
+*********************************************************************************************************************************
+Les tableaux qui sont une structure de données permettant de stocker plusieurs valeurs du même type.
+int tab[3]; //indice de 0 à 3
+tab[0]=2;   //affectation
+Si on passe notre tableau à une fonction, on communique à void fct(int t[]) l'emplacement de tab.
+On copira le nom de tab comme valeur pour t et les éléments de t seront alors ceux de tab.
+On a pas besoin de préciser la taille du tableau en argument d'une fonction il n'y a aucune vérification faite (non vrai si le 
+tableau à plusieurs dimensions !!!).
+
+
+*********************************************************************************************************************************
+		 	STRUCTURES                      (Langages C/C++)							*					*
+*********************************************************************************************************************************
+on peut donner un nom supplémentaire à un type:
+ typedef int entier; //déclaration  entier x, y, z; //Déconseillé de faire un meli melo de type.
+ typedef int tableau [2]; //déclaration tableau t; //peut être mieux sur les tableaux
+Mais le vrai principe est de faire un type de données qui stockent des données de type différents ce sont des enregistrements:
+struct personne{
+	string nom;       //un champ de la structure
+	string prenom;
+ 	int age;
+        struct date naissance; //struct date{int jour, mois, annee;}
+};
+//passage de type dans une fonction
+void saisie(struct personne p) {....}
+//accés dans le main:
+  struct personne p1; //définition d'une variable de ce nouveau type. réservation de mémoire pour mémoriser les données
+  p1.nom = "titi"
+  cout << p1.nom << endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

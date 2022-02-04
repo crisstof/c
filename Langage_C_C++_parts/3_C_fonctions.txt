@@ -1,0 +1,159 @@
+*********************************************************************************************************************************
+			FONCTIONS                       (Langages C/C++)							*		*
+*********************************************************************************************************************************
+L’intérêt est d'alléger le programme principal et ainsi de le rendre plus lisible d’une partet de pouvoir réutiliser 
+des parties du code d’autre part.
+L'utilisation d'un argument permet de faire passer de l'information à une fonction.
+procédure/fonction (procédure qui retourne un résultat).
+int sum5(int val){ 
+   int i=5, retour=0;
+   retour = val+5;
+   return retour;
+} //appel dans le main ... sum(valeur);
+
+Fonction Récursive
+==================
+fonction qui s'appelle elle-même directement soit indirectement (par l'intermédiaire d'autre fonction (callback).
+int factoriel (int n){
+	int aux;
+	if(n==0){
+	    return 1;
+	}
+	else{
+	    aux = n * factoriel(n-1);
+	    return aux;
+	}
+} //appel directement dans le main ... cout << factoriel(3) << endl;
+3! = 1*2*3=6
+3 n=1        3  = 6
+ \          / *
+  2 n=2    2
+   \      / *
+    1n=3 1
+     \  /
+      0 n=4 et la valeur de retour 
+Suite à l'instruction return 1, le dernier appel à factoriel d'achève en retournant la valeur 1.
+on peut alors exécuter l'instruction  aux = n * factoriel(n-1); de l'appel précédent
+sortie factoriel 1 donc aux3=1 aux2=2 aux3=6 
+---------------------------------------------------------------------------------------
+appel indirectement
+#include <iostream>
+using namespace std;
+
+int impaire (int n); // on signale qu’il y aura une fonction impaire dans le fichier
+
+int paire (int n){
+	if(n==0){
+	  return 1;
+	}
+	else{
+	  return (impaire(n-1)); //appel à impaire
+	}
+ }
+
+int impaire (int n){
+	if(n==0){
+	   return 0;
+	}
+	else{
+	   return (paire(n-1)); //appel à paire
+	}
+ }
+
+main(){
+int nombre;
+cout << "donnez un nombre " ;
+cin >> nombre;
+	if(paire(nombre)){
+   	   cout << nombre << " est pair"<< endl;
+	}
+	else{
+  	 cout << nombre << " est impair"<< endl;
+	}
+}
+
+
+
+*********************************************************************************************************************************
+			FONCTIONS   passage                    (Langages C/C++)							*		*
+*********************************************************************************************************************************
+Passage par valeur
+void f (int a){ a=6; }   
+main(){
+  int n=2;      	
+  f(n);		
+  cout<< n <<endl;      
+la valeur de n n'est pas  modifiée car c'est un passage par valeur. donc variable locale
+
+passage par adresse
+void f (int *a){ *a=6; }   
+main(){
+  int n=2;      	
+  f(&n);		
+  cout<< n <<endl;      
+la valeur de n est modifiée car c'est un passage par adresse.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

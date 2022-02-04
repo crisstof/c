@@ -1,0 +1,154 @@
+*********************************************************************************************************************************
+			REFERENCE                       (Langages C/C++)							*		
+*********************************************************************************************************************************
+Les références permettent de modifier les valeurs des arguements d'une fonction lors de l'exécution de cette fonciton, ce
+que l'on appelle le passage par références.
+
+void echange(int & x, int & y){  //sans le & les valeurs dans le main seront inchangées
+	int tmp;                 //grâce à & ils ont un second nom a,x et b,y même zone mémoire
+	tmp=x;
+	x=y;
+	y=tmp;
+} //appel echange(a,b)
+une variable  est une zone mémoire qui a un nom, un type et une valeur.
+Il est possible de donner  des noms supplémentaires à une variable pour cela on utilise &.
+
+int &j = i //on donne comme nom à i le nom j, ils désignent la même zone mémoire.
+
+
+
+*********************************************************************************************************************************
+			POINTEUR                     (Langages C/C++)								*		
+*********************************************************************************************************************************
+Les pointeur vont permettre une gestion dynamique de la mémoire.
+Plutôt que de travailler sur les variables elles-mêmes, on va travailler sur leurs adresse. Les manipulations sont alors
+beaucoup plus simples et il est possible de partager les variables. Bien sûr, lorsqu'une variable n'est pas partagée ni 
+manipulée, il n'est pas nécessaire d'avoir recours à un pointeur.
+Techniquement, la mémoire d'un ordinateur est divisée en blocs mémoirres, chacun d'eux ayant une adresse. Selon le type d'une
+variable, il faut plus ou moins de cases mémoires pour la coder.
+Si la valeur du pointeur p est l'adresse d'une variable a, on dit que p pointe sur a et la valeur de a est appelée contenu de p.
+Avec cela on dispose d'une infinité de types (le type pointeur), mais il est rare d'emboîter plus de trois pointeurs.
+
+int * p    //déclare une variable p qui est un pointeur sur entier.
+float **q //déclare une variable q qui est un pointeur sur pointeur sur réel.
+
+Affectation
+============
+int *p, a, val; //p est un pointeur sur entier
+a=2;
+p = &a //p cointient l'adresse de a donc p pointe sur a qui est la valeur 2 et l'adress 0xldkjf
+val= *p  //val à la valeur 2
+
+Pour un tableau: On peut donner l'adresse d'un tableau au pointeur
+int *p, tab[5];   // p @11 et tab@101 @102  @103 @104 @105
+p = tab		  //p@11 contient @101 celui de tab. p point sur la première adresse de tab
+cout << *(p+2) <<endl; //== tab[2]  == *(tab+2)
+
+Accéder à une variable pointée
+==============================
+Où déréférencer le pointeur. c'est l'opérateur *
+int *p, a=2;        // *(&a) à la même valeur que a
+p = &a;
+cout << "*p = " << *p <<endl; //affiche 2.
+
+Allocations et libérations de mémoire
+=====================================
+Pour affecter directement une valeur au contenu d'un pointeur.
+Il faut s'assurer de l'endroit pointé car il peut être utilisé ou ne pas écraser son contenu ou être interdit d'écriture.
+int *p;			//p à l'@10
+p = new (int)		//p contient l'adresse d'un int exemple @101
+*p = 2;			//@101 contient la valeur 2
+cout << *p << "\n";     // 10[101]p .....101[2]
+pour un tableau p = new typep[n]
+Libérer (désallouer) cette mémoire: delete (p); //il faut absolument faire un new avant le delete p=&a; delete(p) (pas bon)
+
+Exemple
+=======
+void f (int *a){ *a=6; }   //10[6]n *a ... 55[10]a     //a contient l'adresse pointer pas *a et *a accède à la valeur de n
+main(){
+  int n=2;      	//10[2]n
+  f(&n);		//10[2]n *a ... 55[10]a  //on affecte 10 à a (type compatible) //appel de f
+  cout<< n <<endl;      //10[6]n
+la valeur de n est modifiée car c'est un passage par adresse et non par valeur.
+
+
+Enregistrement structure
+==========================
+struct pers{
+	string nom;       
+	string prenom;
+ 	int age;
+};
+
+typedef struct pers personne
+void unandeplus(personne *p){
+   p->age+1;  //ou (*p).age+1
+}
+
+accès pour un enregistrement:
+p est un pointeur sur un enregistrement dans le main:
+personne *p1;
+p1.age=26;
+unandeplus(&p1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
