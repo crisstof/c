@@ -1,0 +1,58 @@
+*********************************************************************************************************************************
+			Gestion des erreurs et R/W FICHIERS             (Langages C/C++)					*
+*********************************************************************************************************************************
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h> //gestion d'erreur avec errno
+#include <string.h>
+
+//variable -> errno 
+//strerror(<code>)
+
+int main(void){
+errno = 0;
+FILE *fic;
+fic = fopen("truc.txt", "r");
+
+if(fic == NULL){
+  fprintf(stderr, "probleme ouverture fichier", strerror(errno));
+  perror("ERR");
+  exit(EXIT_FAILURE);
+}
+fclose(fic);
+return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

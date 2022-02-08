@@ -51,7 +51,44 @@ elle doivents répondre à certains critères:
 
 
 
+Afficher:
+=========
+printf("le nombre est %.2f", prix);
+%d entier, %f flottant, %c caractère, %s chaine
 
+constante: const int TVA = 20; //immuable
+register int var =5; // dans mémoire cache donc plus rapide mais plus utilisé.
+
+Lire au clavier
+===============
+int age =0;
+printf("Quel age ?");
+scanf("%d", &age); //sotcker dans la mémoire @ de la variable
+
+En C++
+std::cin>> maVariable;
+std::cout << "nombre: " << maVariable << std::endl;
+
+on a des flag: goodbit:1, failbit:0 'erreur saisie', badbit:0 'erreur flux', cin.clear() (initialise l'état de cin)
+std::cout << "Good:  " << std::cin.good() << std::endl;
+
+
+Chaîne
+======
+avec cin un espace et la lecture s'arrête il faut getline()
+std::getline(std::cin, maVar); l'espace est ok mais la lecture s'arrête au retour ligne.
+std::getline(std::cin, 'delimiteur');
+
+Lecture sécurisée
+=================
+/*
+LISTE NOIRE	: gets(), atoi(), atol(), atod(), fflush (juste tampon sur sortie)
+LISTE GRISE	: scanf(), fscanf() (gère une chaine par rapport à l'autre)
+LISTE BLANCHE	: fgets()
+*/
+#define BUFFER_SIZE 5
+char buffer[BUFFER_SIZE +1]
+fgets(buffer, BUFFER_SIZE+1, stdin);
 
 
 

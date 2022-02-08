@@ -1,0 +1,622 @@
+*****************************************************************************************************************************************************************
+			Communications SOCKETS             (Langages C/C++)											*
+*****************************************************************************************************************************************************************
+
+
+
+Connexion:
+=========
+Mode connecté: 	Comme le téléphone,  composer le numéro et une fois la connexion.
+		Les échanges se font dans les deux sens et uniquement entre les postes connectés.
+		C'est une analogie du téléphone qui peut être faite, même si c'est une relation asymétrique 
+		type client/serveur où on introduit la socket de connexion uniquement pour recevoir des demandes de connexion 
+		et le système crée une nouvelle socket sur le serveur pour communiquer.
+		Cela permet au serveur de traiter simultanément plusieurs clients et de recevoir les requêtes de clients différents 
+		sur des socket différentes.
+
+Mode non-connecté: Comme le courrier postal (bîte au lettre) ou électronique, on peut émettre de n’importe quelle boîte.
+		   Mais sur chacun des messages, on doit préciser le destinataire.
+
+Protocole:
+=========
+Une fois les programmes prêts à échanger des messages (connaissent l’adresse de leur correspondant)
+La communication peut avoir lieu. Mais elle doit respecter des règles strictes données échangées et synchronisation. 
+C'est règle appelée le protocole. C'est une mise en œuvre d’un échange. 
+Il peut être de bas niveau comme de haut (nos programmes) niveau applicatif.
+
+Représentation et structuration des données:
+===========================================
+On échange des données dans la mémoire de l’ordinateur elle est sous forme binaire. 
+Mais elle peut avoir une signification différente suivant les ordinateurs ou le type de donnée (ASCII, octet pour un entier).
+On a 2 types de codages de données en mémoire, quand il s’agit d’octets (double-octets(16 bits), quadruple octet ou plus). 
+Ces codages enregistrent soit les bits ou octets de poids fort en premier (MSB most signifiant bit/byte first  big indian) ou      (sun MSB)
+                         soit les bits ou octets de poids faible (LSB least signifiant bit/byte first little indian).              (PC (intel, amd) LSB)
+			 De même les normes de codages JPEG MSB, GIF LSB.
+Des programmes avec des langages différents peuvent communiquer et pour garantir l'interopérabilité des programmes, nous pouvons utiliser 
+des langages de représentation tels que XDR (external data representation) ou ASN.1 (abstract syntax norm 1).
+Représente des données structuré, (structures, tableau, chaine), il peut s’agir d’un flux donc pas de séparateur entre deux échanges (audio, vidéo)
+paquet regroupées à l’arrivée, car impossible réellement de circuler un flux continu de données. Sinon il y'aura des messages aucun regroupement à l’arrivée.
+
+
+Premiers pas avec des Sockets:
+=============================
+Une socket est une prise de communication, depuis un processus vers l’extérieur et un autre possédant lui-même une socket. 
+Un programme peut créer plusieurs sockets pour communiquer avec plusieurs programmes. 
+Une socket est identifiée à partir d’un descripteur qui est une valeur entière, qui par abus de langage assimilé à la socket.
+La création d’une socket dépend du mode de communication qu’on souhaite utiliser.
+
+Schéma de fonctionnnement:
+=========================
+Socket de communication o
+Socker de connexion     *
+
+Demande de connexion
+             connect
+Client o---------------* Serveur
+
+
+Création de la socket de communication
+Client o--------------- *-->o Serveur
+
+Connexion établie
+          communication
+Client o<-----------------o  *Serveur
+
+
+L’identifiant: une socket est identifié de façon unique nomMachine.nomdedomaine(IP)+ numéro de port(nom de service) 
+=============  (entre 1024-65536 codé sur 16bits non signée)
+
+
+Principe Générale:
+=================
+CONNEXION:
+1. Le serveur crée une socket destinée à recevoir les demandes de connexion avec la fonction socketServeur(). 
+   Non bloquante elle retourne le descripteur ou entier négatif si erreur.
+2. Ensuite, le serveur se met en attente d’une connexion avec la fonction accept().
+3. Enfin, le client demande à se connecter au serveur à l’aide de la fonction socketClient().
+Le reste nous procédons de la même manière que non-connecté pour associer un numéro de port à la socket.
+4. socketServeur() rend un descripteur de socket utilisé dans accept() pour attendre les demandes de connexion 
+   de la part du ou des clients. 
+   Cette structure complexe permet à plusieurs clients de se connecter avec un seul serveur. 
+   Ainsi le serveur attend toujours sur la même identification de socket (port+machine), connue de l’ensemble de ses clients 
+   et traite les demandes de connexions successives.
+   socketServeur() non bloquante, elle retourne dès que la socket est créée ou une valeur négative si une en cas de problème de création.
+5. La fonction accept est bloquante et ne sort que lorsque le serveur a reçu une demande de connexion de la part d’un client. 
+   En retour elle rend le descripteur de socket qui a été créé pour la connexion avec le client ou –1 en cas d’erreur.
+   Les deux derniers paramètres de accept servent à recevoir une identification de la socket client.
+
+6. Le client utilise la fonction socketClient() pour créer sa socket, les paramètres machine et port de la socket serveur 
+   auquel il souhaite se connecter. Cette fonction est bloquante tant que la connexion avec le serveur ne peut être obtenue ou timeout dépassée.
+
+
+7. Fermeture des connexions et des sockets.
+   Lorsque l’échange client/serveur en mode connecté se termine on ferme la connexion avec la fonction shutdown() mais pas pour le mode non-connecté.
+   Mais ne ferme pas la socket
+8. Pour terminer proprement quel que soit le mode de communication il faut fermer les sockets qui ont été ouvert, avec close(...). 
+   En paramètre le descripteur qu’on veut fermer sinon retourne –1 en cas d’erreur.
+
+COMMUNICATION:
+La communication socket se fait à base d’échanges de données grâce à des fonctions d'envoi et de réception. 
+Les fonctions d’envoi prennent en paramètre les données à envoyer sous la forme d’un buffer: une zone de mémoire caractérisée par son adresse de début et sa taille.
+Le système copie le contenu de cette zone dans le message à envoyer. 
+De la même manière le récepteur reçoit les données du message dans une zone mémoire qui devra être pré-alloué avant de demander à recevoir,
+pour que le système dispose dans votre programme d’une zone de mémoire pour recopier les données, celle-ci n’étant pas allouée par le système. 
+Suivant le mode de communication associé à la socket, différentes fonctions seront utilisées.
+
+Mode non connecté:
+-----------------
+La socket de l’émetteur n’est pas reliée à celle du récepteur, il est nécessaire de préciser le destinataire à chaque envoi.
+la fonction sendto() est bloquante tant que que les données ne sont pas parties de la machine. 
+Il est donc possible de réutiliser le buffeur dès que le programme est sorti de l’appel. 
+A son retour la fonction donne le nombre d’octets envoyés ou –1 elle s’est mal déroulée.
+
+Pour recevoir le message avec la fonction recvform() bloquante tant que rien n’est reçu et retourne le résultat dès la réception d’un premier message même 
+si le buffeur prévu n’est pas rempli. En retour la fonction rend alors la taille du message reçu. 
+Donc si le récepteur ne connait pas à priori la taille du message à recevoir, il doit allouer avant l’appel à la fonction un buffeur de taille suffisante 
+pour recevoir différents messages, mais il peut traiter le message même s'il ne remplit pas entièrement le buffer.
+
+Mode connecté:
+-----------------
+On relie temporairement 2 descripteurs de socket et il n’est plus nécessaire de préciser l’adresse à chaque échange.
+En utilisant la socket connecté les messages sont envoyés grâce à la fonction send. C'est une version réduite de sendto dans laquelle il n’est pas nécessaire 
+de préciser le destinataire.
+La fonction est bloquante tant que le message n’est pas parti de la machine locale.
+Cela garantit que le buffeur du message peut réutiliser sans risque après l’appel à la fonction. 
+Le retour de la fonction correspond au nombre d’octets envoyés ou un code d’erreur -1.
+Ici la chaîne de caractères est données à partir de l’adresse en mémoire chaine du premier caractère de cette chaîne et de la taille de la chaîne. 
+Note elle n’est pas que de 11 caractères+ \0 qui est également transmis pour conserver à la chaîne ses propriétés.
+
+Pour recevoir le message avec la fonction recv, une version réduite de recvfrom. Elle est bloquante tant que nous n'avons pas reçu de message 
+mais elle n’attend pas d’avoir reçu la taille spécifiée dans len pour terminer son attente.
+Le retour est le nombre d’octets reçu par la fonction ou –1 en cas d’erreur.
+
+
+Remarque : 
+=========
+Il n’y a aucune relation entre les rôles client/serveur et les rôles émetteur/récepteur. 
+Les rôle client/serveur détermine avant l’établissement de la connexion socketClient/socketServeur. 
+Est une fois la connexion elle s’efface au profit de émetteur/récepteur de send/recv.
+Nous avons plus le rôle Client.Serveur pour la communication car le server ou le client peut envoyer des messages.
+
+
+Bien Echanger des données:
+=========================
+Pour bien maîtriser les envois et la réception sur les sockets il faut se rappeler quelques informations!!!!!!!!!!!!!!!!!!!!!!
+	- Transmettre des données, l’envoi se fait à partir de l’adresse en mémoire et la taille des données alors que la 
+                                   réception se fait sur la base d’un buffeur alloué par le programme avant la réception.
+	- Les types de base en C sont mémorisé dans des variables, donc on utilise l’adresse de la variable (&nom_variable) pointeur de début+taille obtenue avec 
+         la fonction sizeof taille du message.
+	- Et pour la réception l’adresse de &nom_variable et la taille avec sizeof. 
+	  Cela marche pour l’envoi de type structure de données, sauf s’il contiennent des pointeurs, tableau, chaîne de caractère.
+
+	- Pour les tableaux c’est une réservation de zone de mémoire qui est la taille du tableau et à l’initialisation de la variable identifiant le tableau 
+	  avec l’adresse de cette zone de mémoire.
+	  La taille du tableau est obtenue avec sizeof et la définition d’un tableau est un moyen aisé pour définir un buffeur de réception d’une taille voulue.
+
+	- Pour les chaînes de caractères (zone mémoire et char *  initialisé à l’adresse de début de cette zone et un caractère \0 pour la fin. 
+	  Pour calculer la taille on ne peut pas utiliser sizeof car cela donne la taille associée au type de la donnée or la type de la donnée est char * qui 
+  	  vaut 4 octets pour sizeof donc la taille doit être avec la fonction strlen+\0.
+
+	- Pour la réception on peut comme dans le mode connecté utilisé un tableau de caractères mais la difficulté est que la taille d’une chaîne n'est pas limitée. 
+	  Il est difficile de savoir combien de caractères réserver dans le tableau qui doit être d'une taille fixe. 
+	  La meilleure solution, on établit une convention entre l'émetteur et récepteur pour garantir le nombre de caractère envoyé ne dépasse pas la capacité 
+	  de réception, mais ce n’est pas toujours possible il faut avoir recours à autres choses..
+
+	- Pour les pointeurs nous déconseillons de les passer dans un message car elle correspond à une adresse dans une machine locale mais elle ne correspond pas 
+	  à la machine de réception.
+
+
+
+
+
+
+
+
+*****************************************************************************************************************************************************************
+		LES  SOCKETS DES EXPERTS             (Langages C/C++)		pratique csd									*
+*****************************************************************************************************************************************************************
+L’API  Application Programming Interface (interface de programmation) du protocole TCP/IP repose sur l’utilisation de sockets de communication et 
+permet l’utilisation au niveau applicatif des fonctionnalités du protocole. Mode connecté repose sur TCP et non-connecté sur UDP.
+
+
+CREATION DE SOCKET
+------------------
+On travaille sur les réseaux internet TCP/IP définie à partir du nom de domaine AF_INET.
+Si nous utilisons d’autres protocoles, la valeur peut être trouvée dans le fichier <sys/socket.h>.
+Le type de protocole définit un mode d’utilisation spécifique de la famille de protocole qui permettent de définir des propriétés des communications avec 
+d’autres mode, qui permettent d’envoyer en mode datagramme ou message sur des sockets. 
+Mais on reste sur les modes vus comme en mode connecté on utilisera les socket de type SOCK_STREAM et non_connecté SOCK_DGRAM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*****************************************************************************************************************************************************************
+		LES  SOCKETS DES EXPERTS PROGRAMMATIONS             (Langages C/C++)										*
+*****************************************************************************************************************************************************************
+Les sockets et la communication envoyer/recevoir sous forme de fonctions non détaillées pour la compréhension générale.
+---------------------------------------------------------------------------------------------------------------------------------
+Créer une socket (renvoi -1 si erreur)
+#include fonctionsSocket.h
+int desc_sock;
+desc_sock= socketUDP_EAD(2500); //si erreur renvoi -1
+if(desc_sock < 0){erreur création};
+//......communication..........
+close (desc_sock);
+----------------------------------------------------------------------------------------------------------------------------------
+mode non connecté   (renvoi –1 si erreur)
+-----------------
+Envoi:  
+ssize_t  sendto(int desc_sock, const void *buf, size_t len, int flags, const struct  sockaddr  *to,  socklen_t  addrlen);
+Recevoir:
+ssize_t  recvfrom(int desc_sock, void *buf, size_t len, int flags, struct  sockaddr  *from,  socklen_t  addrlen);
+
+mode  connecté (client/serveur) (côté serveur = socket de connexion, socket de communication)
+--------------
+Envoi:  
+ssize_t  send(int desc_sock, const void *buf, size_t len, int flags);
+Recevoir:
+ssize_t  recv(int desc_sock, void *buf, size_t len, int flags);
+
+
+SERVEUR (sockets de connexion et de transmission)
+-------------------------------------------------
+#include fonctionsSocket.h
+int desc_sock_conn, desc_sock_trans;
+desc_sock_conn= socketServeur_EAD(2500);
+if(desc_sock_conn < 0){erreur création};
+desc_sock_trans= accept(desc_sock_conn, NULL, NULL); //accept(int desc_sock, struct sockaddr  *,  socklen_t)
+if(desc_sock_trans == -1){erreur transmission};
+//.......communication........... 
+close (desc_sock_conn et desc_sock_trans);
+
+*****************************************************************************************************************************************************************
+  PROGRAMMATIONS EXPERT   (Langages C/C++)															*
+*****************************************************************************************************************************************************************
+La famille de protocole TCP/IP est définie à partir du nom de domaine AF_INET, lorsqu’on utilise d’autres protocoles la valeur est trouvé dans <sys/socket.h> 
+Le type de protocole mode connecté SOCK_STREAM (TCP)  non-connecté SOCK_DGRAM (UDP)
+#include <sys/types.h> //type de protocole
+#include <sys/socket.h> //socket en générale
+int socket(int domain, int type, int protocol); //création d’une socket
+int bind(int desc_sock, const struct sockaddr  *addr, socklen_t  addrlen);//associer une @ à la socket
+
+Dans le domaine de communication AF_INET on utilise des adresses en structure et permet d’accéder à toutes les machines d’un domaine internet.
+#include <netinet/in.h>
+struct sockaddr_in{ 
+    sa_family_t       sin_family; //famille d’adresse AF_INET
+    in_port               sin_port;   //port dans l’ordre des octets réseau
+    struct  in_addr  sin_addr; //adresse internet
+};
+
+Cette structure contient des champs supplémentaires pour des raisons de sécurité, d’aligner la taille de toutes les adresses réseaux, donc avant d’initialiser 
+cette structure il faut la mettre complètement à 0:  struct sockaddr_in;
+                                   		     memset(&addr, 0, sizeof(addr));
+
+La champ sin_addr doit avoir l’IP où se trouve la socket et sin_port le port associé à la socket.
+sin_addr peut avoir INADDR_ANY (adresse machine au moment de l’exécution),sin_port à 0.
+Les numéros internet peut s’écrire toujours sur 4 octets ancienne ou récente version
+
+struct in_addr{                                                       typedef  uint32_t  in_addr_t;
+     union{                                                               struct in_addr{
+         struct {u_charts_b1, s_b2, s_b3, s_b4;}S_un_b;                            in_addr_t  s_addr;
+         struct {u_short s_w1, s_w2;}S_un_w;                              };
+         U_long S_addr;
+     }S_un
+}:
+#define  s_addr  S_un.S_addr
+
+Les noms de machine (avec les DNS)
+-------------------
+gethostbyname   (info adresse AF_INET à partir de son nom); 
+gethostname  (int gethostname(char  *name, size_t len); (info nom à partir de l’adresse)
+Connaitre l’adresse de la socket avec laquelle on est connecté : getpeername: int getpeername ( int desc_sock, struct  sockaddr  *addr, socklen_t  *addrlen) ;
+
+#include  hostent   *gethostbyname (const   char  *name) ; //résolution de nom /etc/nsswitch.conf
+Structure hostent
+struct   hostent {
+      char    *h_name ;  //nom officiel de l’hôte
+      char    **h_aliases ;  //liste d’alias plusieurs noms lifc ou lifc.univ-fcomte.fr
+      int     h_addrtype;  //type d’adresse de l’hôte pour diff protocoles comment traiter @ de h_addr_list
+      int     *h_length;  //longueur de l’adresse
+      char    **h_addr_list;  //liste d’adresses réseaux de la machine (plusieurs) : passerelles  ...
+//l’@ principale en 1ier  accessible pas h_addr à transtyper en in_addr
+}
+#define   h_addr   h_addr_list[0]   //pour compatibilité
+
+La structure hostent est alloué par le système et retourne un pointeur sur la structure, il n’est pas nécessaire d’allouer une structure avant l’appel à la 
+fonction mais déclarer un pointeur qui sert de retour de fonction
+Exemple formule pour obtenir le numéro IP d’une machine:
+	struct   hostent *host ;  //description de la machine serveur
+	struct   sockaddr_in   addr ; //adresse de la socket du serveur
+	/*recherche de l’adresse de la machine*/
+	host = gethostbyname (nom_machine) ;
+	if (host== NULL){  traitement erreur  }
+	/*Recopie de l’adresse IP */
+	addr.sin_addr.s_addr  =  ( (struct  in_addr  *)  (host -> h_addrs_list [0] ))  ->  s_addr ;
+
+Les ports (utilisateur port>1024)
+----------------------------------
+Statiquement ou dynamiquement avec: Le champ sin_port  0 avant l’appel de bind. 
+Et pour connaitre le n° port attribuer par le système, il faut demander l’adresse associée à la socket après l’appel bind et extraire le numéro avec :
+ int   getsockname (int desc_sock, struct  sockaddr  *addr,  socklen__t  *addrlen ) ;   //(si erreur -1)
+Au retour de l’appel la structure addr est initialisée aves l’adresse de la socket.
+Le mode de codage Internet est le type MSB alors que la machine est LSB il faut utiliser les fonctions de conversion de l’ordre des octets !! afficher un port avec %hu
+uint16_t  hton(uint_t  hostshort) ; //host to network
+uint16_t  ntohs(uint_t  netshort) ; //network to host
+
+Les services   (port à un nom de service dans /ets/services ou sur sgbd réseau)
+-------------------------------------------------------------------------------
+Certains services sont accessibles qu’à travers le protocole UDP 
+Obtenir n° port : getservbyname(n° port<= service)
+#include  <netdb.h>
+struct   servent   *getservbyname(const   char  *name,  const  char  *proto) ; //proto  donne le service/protocole
+
+struct  servent {
+char      *s_name ;  //nom officiel du service
+char    **s_aliases ;  //liste d’alias
+int          *s_port ;  //numéro de port
+char       *s_proto ;  //protocole à utiliser
+}
+
+Socket bloquante
+Certaines communications ont besoin de tester si des données sont disponibles sur la socket sans bloquer lorsqu’il n’y en a pas. (serveur traite plusieurs clients).
+Rendre une socket non-bloquante (ne bloque pas le processus).
+Les appels bloquants aux sockets peuvent être évités avec ioctl avec le flag  FIONBIO
+int block; //block=1, pour rendre non bloquant et 0 le rendre bloquant
+err = ioctl(desc_sock, FIONBIO, &block);
+L’utilisation de socket non bloquante permet de se mettre en attente sur plusieurs sockets en même temps par scrutation successives. 
+Mais le processus reste actif et consomme de la ressource pour scruter les sockets.
+
+Multiplexage des appels socket
+-------------------------------
+Cela consiste à mettre en attente un programme sur plusieurs sockets simultanément et de savoir, après l’attente, celle qui est prête à envoyer ou à recevoir. C’est une fonction conçue pour les fichiers mais utilisée sur les sockets.
+L’utilisation de la fonction select suppose la constitution d’ensembles de descripteurs de fichiers :
+Un pour les descripteurs en lecture, un en écriture et un pour les exceptions.
+Le type associé aux ensembles de descripteurs est fd_set
+Constituer les ensembles des descripteurs on utilise les fonctions:
+int fd; 
+fd_set  fdset;
+FD_ZERO (&fdset) //initialise l'ensemble
+FD_SET(fd, &fdset) // met le descripteur fd dans l'ensemble fdset
+FD_CLR (fd, &fdset) //exprime le desc fd de lensemble fdset
+FD_ISSET(fd, &fdset) //teste si le desc est prêt apres un appel à select
+
+La taille du select est liée à la taille du type fd_set qui est données pas la constante FD_SETSIZE
+#include <sys/types.h>
+#include <sys/time.h>
+int select(
+  int nfds, //= FD_SETSIZE
+  fd_set *readfds, //ensemble des desc lecture
+  fd_set *writefds, //ensemble des desc ecriture
+  fd_set *exceptfds, //ensemble des desc exception
+  struct timeval  *timeout //temps d'attente
+);
+
+
+En retour on peut savoir par quoi l’attente de select a été interrompue. 
+(si erreur 0 timeout, -1 une erreur, n>0 le nombre de descripteurs prêts)
+
+En sortie de select si au moins un descripteur est prêt alors seuls sont maintenus dans les ensembles passées en paramètre.
+La fonction FD_ISSET permet alors en testant successivement tous les descripteurs initialement positionnés de savoir lequel est prêt.
+Puisque select modifie le contenu des ensembles de descripteurs il faut initialiser ces ensembles avant chaque nouvel appel à la fonction.
+La structure timeout de type struct  timeval donne le temps maximum d’attente dans select
+struct  timeval {
+long  tv_sec ; //secondes
+long  tv_usee ; //microseconde
+} ;
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+Exemple
+--------
+CLIENT
+Socket mode non connecté UDP
+#include <stdio.h> #include <stdlib.h>
+#include <string.h> #include <unistd.h>
+#include <sys/socket.h> //socket en générale
+#include <netinet/in.h> // domaine internet struct sockaddr_in
+#include <netdb.h> //les services struct servent et struct hostent nom de machine
+
+int main(int argc, char *argv[]) {
+      int sock; /* descipteur de la socket */
+      int err;    /* code d'erreur */
+ 
+      struct sockaddr_in addr; /* adresse de la sochet */
+      /* Creation de la socket, protocole UDP */
+      sock = socket(AF_INET, SOCK_DGRAM, 0);
+      if (sock < 0) {
+            perror("Erreur a la creation de la socket");
+            return ERR_SOCKET;
+      }
+ 
+      /* Initialisation de l'adresse de la socket */
+      memset(&addr, 0, sizeof(addr));
+      addr.sin_family = AF_INET;
+      addr.sin_port = htons(port);
+      addr.sin_addr.s_addr = INADDR_ANY;
+     /* Attribution de l'adresse a la socket */
+     err = bind(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+     if (err < 0) {
+           perror("Erreur sur le bind");
+           return ERR_BIND ;
+      }
+ 
+     /* Retourne le descripteur de socket */
+    return sock;
+}
+ 
+
+CLIENT
+Socket mode connecté TCP
+ 
+  char chaine[100];
+  int sock;                              /* descripteur de la socket locale */
+  int err;                                 /* code d'erreur */
+  struct hostent    *host;    /* description de la machine serveur */
+  struct sockaddr_in addr; /* adresse de la socket du serveur */
+ 
+  /* Verification des arguments */
+  if (argc != 3) {
+    printf("Usage: client nom_machine no_port\n");
+    exit(1);
+  }
+  /* Creation d'une socket, domaine AF_INET, protocole TCP */
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+  if (sock < 0) {
+    perror("Erreur a la creation de la socket");
+    exit(1);
+  }
+   /* Initialisation de l'adresse de la socket */
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(atoi(argv[2]));
+
+  /* Recherche de l'adresse de la machine */
+  host = gethostbyname(argv[1]);
+  if (host == NULL) {
+    printf("Erreur dans la recherche de l'adresse de la machine (gethostbyname)");
+    exit(2);
+  }
+ 
+  /* Recopie de l'adresse IP */
+  addr.sin_addr.s_addr = ((struct in_addr *) (host->h_addr_list[0]))->s_addr;
+ 
+  /* Connection au serveur */
+  err = connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+  if (err < 0) {
+    perror("Erreur la connexion de la socket");
+    exit(3);
+  }
+  /* Envoi de la chaine */
+  size_t len = strlen(chaine) + 1;
+  err = send(sock, chaine, len, 0);
+  if (err != len) {
+    perror("client: erreur sur le send");
+    shutdown(sock, 2);
+    exit(4);
+  }
+  printf("client: envoi realise\n");
+ 
+  /* * Fermeture de la connexion et de la socket */
+  shutdown(sock, 2);
+  close(sock);
+ 
+  return 0;
+}
+
+SERVEUR mode connecté
+---------------------
+#include <stdio.h> #include <stdlib.h>
+#include <string.h> #include <unistd.h>
+ #include <sys/socket.h> //socket en générale
+#include <netinet/in.h> // domaine internet struct sockaddr_in
+#include <netdb.h> //les services struct servent et struct hostent nom de machine
+#define YAIL_BUF 100
+
+int main(int argc, char *argv[]) {
+   char buffer[TAIL_BUF];
+   int sock_conn;
+   int sock_trans;
+   int err;
+
+    struct  sockaddr_in  nom; //adresse de la socket
+
+ 
+  /* Verification des arguments */
+  if (argc != 2) {
+    printf("Usage: serveur no_port\n");
+    exit(1);
+  }
+ 
+  /* Creation de la socket, protocole TCP */
+  sock_cont = socket(AF_INET, SOCK_STREAM, 0);
+   if (sock_cont < 0) {
+    perror("Erreur a la creation de la socket");
+    exit(2);
+  }
+ 
+  /* Initialisation de l'adresse de la socket */
+  nom.sin_family = AF_INET;
+  nom.sin_port = htons(atoi(argv[1]));
+  nom.sin_addr.s_addr = INADDR_ANY;
+  memset(nom.sin_zero, 0, 8);
+ 
+  /* Attribution de l'adresse a la socket */
+  err = bind(sock_cont, (struct sockaddr *)&nom, sizeof(struct sockaddr_in));
+  if (err < 0) {
+    perror("Erreur sur le bind");
+    exit(3);
+  }
+ 
+  /* Utilisation en socket de controle, puis attente de demandes de connexion. */
+  err = listen(sock_cont, 1);
+  if (err < 0) {
+    perror("Erreur dans listen");
+    exit(4);
+  }
+ 
+  /* Attente de connexion */
+  sock_trans = accept(sock_cont, NULL, NULL);
+  if (sock_trans < 0) {
+    perror("Erreur sur accept");
+    exit(5);
+  }
+ 
+  /* Reception et affichage du message en provenance du client */
+  err = recv(sock_trans, buffer, TAIL_BUF, 0);
+  if (err < 0) {
+    perror("Erreur dans la reception");
+    shutdown(sock_trans, 2);
+    exit(6);
+  }
+ 
+  printf("serveur: voila le message recu: %s\n", buffer);
+    
+  /* arret de la connexion et fermeture */
+  shutdown(sock_trans, 2);
+  close(sock_cont);
+ 
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
