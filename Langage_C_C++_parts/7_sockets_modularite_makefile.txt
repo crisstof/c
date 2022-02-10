@@ -1,0 +1,227 @@
+*****************************************************************************************************************************************************************
+			Hiérarchie de fichiers modulaires  et Soket           (Langages C/C++)									*
+*****************************************************************************************************************************************************************
+Modularité:
+Nous allons établir une structure hiérarchique des fichiers codes sources.
+dans le principe:
+
+****Les fichiers HEADER .h ou hpp contient les prototypes de méthodes, fonctions et peut être les variables.
+En C++ le fichier contient la class Fille : protected Mere avec tout ses attributs et méthodes qui sont implémentées dans .cpp.
+--------------------------------------------------
+ monFichierHeader.h
+#ifndef MON_FICHIERS_HEADER_H
+#define MON_FICHIERS_HEADER_H
+/**
+ * @author cccccccc
+ * @date 09 Feb 2022, modified 16 Jul 2022
+ */
+
+/**
+ * Description de ce que fait la fonction 
+ * @param les paramètres qu'il faut 
+ */
+void fonction(const char *param);
+......
+......
+#endif /* MON_FICHIERS_HEADER_H */
+--------------------------------------------------
+
+****Les fichiers .c ou cpp contient l'implémentations des prototypes avec les includes des fichiers .h
+Nous pouvons avoir aussi besoins de fonction alors on inclus .h qui ne seront pas à inclure dans le main.c (cascading)
+--------------------------------------------------
+ monFichier.c
+#include "monFichierHeader.h"  //fichiers d'en-tête définis par le programmeur  (préprocesseur recherche dans le même répertoire que la directive et suit le chemin)
+#include <stdio.h>             //fichiers d'en-tête de bibliothèque standard (préprocesseur recherche les répertoires pré-désignés du compilateur/IDE)
+#include "autreFicH.h"
+attributs ...
+void fonction(const char *param){
+      .....
+}
+--------------------------------------------------
+
+****Le fichier main contient le programme principale qui utilise les méthodes et inclus des fichiers .h 
+--------------------------------------------------
+#include "monFichierHeader.h" 
+int main() {
+char chaine[100];
+chaine="hello world";
+fonction(chaine);
+return 0;
+}
+
+--------------------------------------------------
+
+****Le fichier Makefile de type Makefile
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Make est un logiciel qui construit automatiquement des fichiers exécutables ou bibliothèques à partir de code source.
+     Il utilise des fichiers appelés makefile qui spécifient la constructions des fichiers cibles à l'aide d'une syntaxe spécifique.
+     A la différence d'un script shell, make exécute les commandes seulement si elles sont nécessaire
+     Le but est d'arriver à un résultat (logiciel compilé ou installé, documentation créée ...) sans refaire toutes les étapes.
+     mots clés: install, clean ...
+
+Il faut avoir une structure et hiérarchie de répertoires et fichiers
+tout est dans src (dossier source)
+nous avons fonctionsCommunication{h,c} et fonctionsSocke{c;h}
+puis un dossier test où nous avons emetteur1.c recepteur1.c emetteur2.c recepteur2.c Makefile
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Faire un Makefile:
+-----------------
+# author: cccccccccccc
+# created: 09 Feb 2022
+# updated: 09 Feb 2022
+
+FUNC_DIR=..
+FUNC_C=$(FUNC_DIR)/fonctionsCommunication.c $(FUNC_DIR)/fonctionsSocket.c
+FUNC_O=$(FUNC_C:.c=.o)
+
+CFLAGS=-Wall -O2 -I$(FUNC_DIR)
+LDFLAGS=
+
+TARGETS=emetteur1 recepteur1 emetteur2 recepteur2
+
+all: $(TARGETS)
+
+emetteur1: $(FUNC_O)
+recepteur1: $(FUNC_O)
+emetteur2: $(FUNC_O)
+recepteur2: $(FUNC_O)
+
+clean:
+	rm -f *.o
+	rm -f $(TARGETS)
+	rm -f $(FUNC_O)
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+*****************************************************************************************************************************************************************
+			PROGRAMMATION SOCKET           (Langages C/C++)												*
+*****************************************************************************************************************************************************************
+L'Echange de données peuvent être ex01:
+--------------------------------------
+
+Entier                                                                           
+int val=42              ---------->   int val;                         
+&val, sizeof(int) , 0                 &val, sizeof(int),0           
+                       
+
+
+Tableau  /* mise a zero memset avant réception */
+int array[5]= {1,2,3,4,5}; -------->  int array[5];
+array, 5*sizeof(int),0                memset(array, 0, LEN*sizeof(int));
+				             array, 5*sizeof(int),0
+
+
+Chaine 
+char  *chaine = "Hello"     -------->   char buf[20]
+chaine,6,0                              buf, sizeof(buf),0
+
+
+Une structure ou un typedef ex04 :
+---------------------------------
+#ifndef  TYPES_H        |   mon_type_t  foo=42; ----->  mon_type_t  foo=0; 
+#define TYPES_H         |   ma_structure_t  bar;        ma_structure_t  bar
+typedef int  mon_type_t;|   bar.a=10;                   memset(&bar,0,sizeof(ma_structure_t));
+typedef  struct{        |   bar.b[0]=’H’;               reçus=recv(sock_trans, &foo,sizeof(mon-type_t),0);
+   int a;               |   send(sock, &foo,sizeof(mon-type_t),0);
+  char  b[6];           |   send(sock, &bar,sizeof(ma_structure_t),0);                                             
+  float c;              |                                           recus=(sock_trans,&bar,sizeof(ma_structure_t),0);
+} ma_structure;         |   taille: sizeof(bar.b)/sizeof(char) 
+#endif			|
+
+
+
+On peut mettre en évidence ex05 :
+--------------------------------
+L’indépendance entre client/serveur (connexion) et émetteur/récepteur (communication)
+Le serveur envoie une chaine au client et il renvoie la taille on a inversé les rôle émetteur/récepteur.
+Le serveur crée 2 sockets (conn =(socketServeur_EAD(port), trans =(accept(conn,null,null)) serveur en attente d’une connexion. 
+Le client crée une socket (int sock = socketClient_EAD("localhost", portserveur))
+
+Ensuite une communication peut s’engager:
+Serveur envoie une chaine char *chaine="hello"; envoyes = send(trans,chaine,strlen(chaine)+1,0)
+Le client reçoit la chaine dans un charbut[20];   recus = recv(sock,buf,sizeof(buf),0)
+taille = strlen(buf) et envoi au serveur:       envoyes = send(soc,&taill,siezof(int),0);arret-ferme la connexion
+Le Serveur reçoit la taille                       recus = recv(trans,&taille,sizeof(int),0) ; arret trans fermes sockets
+
+INVERSEMENT
+Client envoie chaine de caractère à l’aide de scanf dans un char chaine[TAILLEMAX];
+              envoyes=send(sock,chaine,strlen(chaine)+1,0  
+        Serveur recus=recv(trans,bu,sizeof(buf),0); taille=strlen(buf) et send...&taille,sizeof(int)..
+Client reçoit la taille avec recv(sock,&taille,sizeof(int),0);
+
+répéter l’échange client->server(taille)->client  tant que la chaine fin n’est pas envoyé:
+Mettre la communication dans une boucle infinie for( ; ; ; )
+Client récupère une chaine avec scanf puis send et compare ce qu’il a envoyé au serveur avec un
+If(strcmp(chaine,"fin") == 0) break; else reçoit la taille et l’affiche
+Serveur recv dans un buffeur compare si fin break sinon envoi la taille de ce qu’il y a dans le buffeur.
+
+Pour envoyer 5 chaines de caractère successivement sans attendre de retour puis le récepteur retourne dans un tableau 
+contenant les tailles des chaînes:
+CLIENT
+int taille[5],
+char* chaines[5}={ "coucou", “hello", ..};
+Dans un for(5) on envoyes=send(sock,chaines[i],strlen(chaines[i])+1,0); 
+Ajouter dans le for un sleep(1) pourque le serveur ne reçoit pas tout en un seul morceau.
+Puis on reçoit du serveur les tailles dans un tableau: recv((sock,&tailles, 5*sizeof(int),0)
+SERVEUR
+Recoit les chaines dans un buffeur char buf[5] et envoi les tailles dans int taille[5]
+Dans un for(5) recus=recv(sock_trans,buf,sizeof(buf),0); 
+et met dans un tableau la taille de chaque chaine tailles[i]=strlen(buf) et 
+affiche la chaine dans un printf(“%s”, buf) (& facultatif tableau)
+Puis quand on sort de la boucle on envoie les tailles: send(sock_trans,&tailles, 5*sizeof(int),0);
+
+------------------------------------------------------------------------------------------------------------------
+ex15 serveur concurrent et pool
+------------------------------------------------------------------------------------------------------------------
+
+Pour une plus grande accéptabilité de communication voir la conception en JAVA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

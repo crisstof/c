@@ -1,0 +1,115 @@
+*****************************************************************************************************************************************************************
+			PROTOCOLE DE COMMUNICATION           (Langages C/C++)											*
+*****************************************************************************************************************************************************************
+Définition d'un protocole pour le serveur de calcul.
+Q17.1 reprendre le serveur de calcul et définir un protocole/interface à la manière du cours.
+Il faut penser à définir correctement 
+	les structures des requêtes, 
+	les structures des réponses, 
+	les codes des requêtes et les codes d'erreur.
+
+Ici le protocole est particulièrement simple puisque toutes les requêtes envoyées du client vers le serveur contiennent la même chose: l’opérateur et deux données. 
+Il n’est donc pas nécessaire de définir plusieurs types de requêtes et leur traitement.
+
+
+
+Q18: Serveur de numéros de port ?
+Le fichier /etc/services n’étant pas forcément le même sur toutes les machines, il serait utile de disposer d’un serveur centralisant toutes ces informations
+(manière du DNS pour les noms et IP).
+Le serveur doit être capable de répondre aux requêtes de création et destruction d’un nouveau service (avec ou sans numéro de port fixé), 
+de recherche du numéro de port d’un service ou de recherche d’un nom de service.
+
+Q18.1 Proposition d'un protocole d'accès à ce serveur, donner le code du serveur et le code du client ?
+Nous ne nous intéressons pas ici à la gestion de la table des services à l’intérieur du serveur, aussi nous n’avons pas géré de ré-allocation dans cette table, 
+ce problème étant plutôt de l’ordre de l’algorithmique que de la communication en distribué. 
+
+Lorsqu’un service est supprimé, nous nous contentons de rendre l’entrée dans la table indisponible. 
+Remarquer ici la définition d’un fichier serveur.h où sont déclarés l’ensemble des structures de données propres au serveur mais qui ne concerne pas le client. 
+Ceci est le cas pour la structure service entry de la table des services qui regroupe l’ensemble des informations liées à un service.
+Dans ce cas, la structure de donnée utilisée pour les requêtes est plus complexe car les données échangées ne sont pas toujours les mêmes. 
+Les requêtes possibles sont :
+— une requête de déclaration qui prend en entrée le numéro de port, le nom du service et du protocole. Le retour de cette requête donne un code d’erreur.
+— une requête de demande d’attribution de port qui prend en entrée les noms du service et du protocole. Le retour de cette requête donne un code d’erreur et le numéro de port attribué.
+— des requêtes de consultation à partir du nom ou du numéro de port qui retournent un code d’erreur et les infos manquantes.
+— une requête de suppression qui prend en entrée le nom du service. Le retour de cette requête donne un code d’erreur.
+— une requête de fin de connexion qui est un autre mode que celui utilisé dans le serveur de calcul.
+Pour chacune des requêtes il est nécessaire de déterminer quelles sont les données en appel (entrée) ou en retour (sortie). 
+Les structures des requêtes sont constituées sur cette base.
+La structure du serveur n’est plus une structure de serveur concurrent dans la mesure où les clients doivent accéder à la même table de données partagée. 
+Il n’est pas simple d’avoir un partage entre processus. Cela peut se faire par mémoire partagée, par communication, en ayant des threads, etc. 
+Vous verrez ces aspects dans le cours d’algorithmique concurrente. 
+Nous nous sommes donc contentés d’un select. Noter tout de même la structure du select avec clients multiples dont vous n’aviez pas encore eu de correction.
+Il faut noter que la corrections donnée n’est qu’une implantation possible du protocole. D’autres possibilités existent et peuvent être aussi valides 
+si vous avez des arguments pour les justifier. En particulier, le choix d’une structure unique peut être contesté au profit de plusieurs structures ayant pour 
+première donnée un code de requête. De la même manière, il est possible de s’interroger sur la nécessité de définir différentes structures de données dans la mesure 
+où il serait possible d’utiliser toujours à la même sans incidence sur les performances de communication dans la mesure où le fait de définir une union nous 
+conduit à définir une structure de données qui recouvre l’ensemble des définitions. Dans le cas présent, les choix sont justifiés par l’amélioration de la 
+lisibilité du code.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

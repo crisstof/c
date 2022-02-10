@@ -91,3 +91,19 @@ lire pour plus de détaille: https://code.visualstudio.com/docs/cpp/config-mingw
 
 
 
+=====================================================================================================
+Installation de Mingw64
+https://sourceforge.net/projects/mingw/
+
+package
+mingw-developper-toolkit
+mingw-32-base
+mingw-32-gcc-g++
+msys-base
+
+Mettre dans le Path pour reconnaitre make C:\MinGW\msys\1.0\bin     
+make -f Makefile
+ou
+compiler à la main
+gcc main.c -o fic1
+
