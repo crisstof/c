@@ -1,0 +1,93 @@
+La fonction Callback
+la différence entre le pointeur de fonction et les fonctions de rappel (callback)
+un pointeur de fonction qui point sur la fonction.
+les fonctions de rappel sont des pointeurs de fonction passés en tant que paramètres de la fonction et
+qui peuvent être rappelés lorsqu'un évènement se produit.
+code
+nous enregistrons la fonction de rappel dans la fonction principale en attribuant l'adresse de la fonction de callback (pointeur de fonction)
+Ensuite nous passons le pointeur de fonction à la fonction test_loop et on exécute le callback lorsque la valeur est égale à 5.
+
+Mais pourquoi un pointeur de fonction??  car nous pouvons appeler directement callback_fn avec le même résultat.
+C'est un doute impressionnant??
+dans un cas réel la fonction de callback ne sera pas présente dans le même fichier ou bibliothèque.
+nous ne connaissons donc pas le nom de la fonction.
+Ainsi nous obtiendrons l'adresse de la fonction puis nous l'appelerons.
+nous pouvons utiliser le typedef pour le pointeur de fonction pour améliorer la lisibilité.
+
+Principal Avantage d'une fonction callback?
+. nous pouvons appeler une fonction définie dans un niveau logiciel supérieur à partir d'un sous-programme de niveau logiciel inférieur.
+. Un rappel peut être utilisé pour les notifications ou les signaux quand on en a besoin au moment.
+
+
+
+========================Exemple de code================================================================================================
+// A simple C program to demonstrate callback mechanism
+#include<stdio.h>
+// Callback Function which has no argument and no return value
+/*aide avec le typedef*/                                                 //****avec valeur
+/* typedef void (*callback_) (void); */                                  //*** typedef void (*callback_) (int val);
+
+void callback_fn( void )                                                 //*** void callback_fn( int val )                                                 
+{
+    printf("In callback function\n");                                    //***printf("In callback function, val = %d\n",val);
+}
+
+void test_loop( void (*fn)(void) )   /* void test_loop( callback_ fn ) */ //**** mmême chose
+{
+    for( int i = 0; i < 6; i++ )
+    {
+        if(i == 5)
+        {
+            // callback execution
+            (*fn) ();                            /*fn();  */              //**** fn(i);
+        }
+        printf("i = %d\n", i);
+    }
+}
+  
+int main()
+{
+    // Registering the callback
+    void (*fn_ptr)( void ) = &callback_fn;      /* callback_  fn_ptr = &callback_fn;    */
+      
+    // calling the function with the function pointer
+    test_loop(fn_ptr);
+  
+   return 0;
+}
+========Result=========
+i = 0
+i = 1
+i = 2
+i = 3
+i = 4
+In callback function
+i = 5
+========================
+avec le même résultat mais une fausse fonction de callback
+#include<stdio.h>
+
+void callback_fn( void )
+{
+    printf("In callback function\n");
+}
+  
+void test_loop( void )
+{
+    for( int i = 0; i < 6; i++ )
+    {
+        if(i == 5)
+        {
+            callback_fn();
+        }
+        printf("i = %d\n", i);
+    }
+}
+  
+int main()
+{
+    test_loop();
+  
+    return 0;
+}
+-------------------------------------------------------------------------------------------------------------------------------------------
